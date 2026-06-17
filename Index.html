@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Groceries" />
+<meta name="theme-color" content="#F5F7F2" />
+<title>Groceries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F5F7F2;
+    --ink: #242820;
+    --ink-soft: #96998E;
+    --line: #E3E7DB;
+
+    --wfm: #5D8A4E;
+    --wfm-bg: #EAF2E6;
+    --wfm-text: #3D6130;
+
+    --tj: #D4622A;
+    --tj-bg: #FAEDE5;
+    --tj-text: #A8401A;
+
+    --indian: #C4852A;
+    --indian-bg: #FAF0E0;
+    --indian-text: #96600E;
+
+    --other: #7B6EA8;
+    --other-bg: #EEEBF7;
+    --other-text: #574A82;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+
+  .app {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header.top { padding: 28px 20px 10px; }
+  header.top h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  header.top h1 svg { width: 26px; height: 26px; }
+  header.top p {
+    margin: 4px 0 0;
+    color: var(--ink-soft);
+    font-size: 13px;
+  }
+
+  nav.tabs {
+    display: flex;
+    gap: 5px;
+    padding: 10px 14px 0;
+  }
+  .tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 10px 4px;
+    border: none;
+    border-radius: 12px 12px 0 0;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: transform .15s ease, background .15s ease, color .15s ease;
+    transform: translateY(4px);
+    line-height: 1;
+  }
+  .tab .badge {
+    font-size: 10px;
+    font-weight: 500;
+    opacity: 0.7;
+    font-family: 'Inter', sans-serif;
+    min-height: 14px;
+  }
+
+  .tab[data-cat="wfm"]    { background: var(--wfm-bg);    color: var(--wfm-text); }
+  .tab[data-cat="tj"]     { background: var(--tj-bg);     color: var(--tj-text); }
+  .tab[data-cat="indian"] { background: var(--indian-bg); color: var(--indian-text); }
+  .tab[data-cat="other"]  { background: var(--other-bg);  color: var(--other-text); }
+
+  .tab.active {
+    background: #fff;
+    transform: translateY(0);
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
+    position: relative;
+    z-index: 2;
+  }
+  .tab[data-cat="wfm"].active    { color: var(--wfm-text); }
+  .tab[data-cat="tj"].active     { color: var(--tj-text); }
+  .tab[data-cat="indian"].active { color: var(--indian-text); }
+  .tab[data-cat="other"].active  { color: var(--other-text); }
+
+  main.panels {
+    flex: 1;
+    background: #fff;
+    border-radius: 0 0 16px 16px;
+    margin: 0 14px 24px;
+    box-shadow: 0 4px 24px rgba(36, 40, 32, 0.07);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .panel {
+    display: none;
+    flex-direction: column;
+    flex: 1;
+    border-top: 4px solid transparent;
+    min-height: 65vh;
+  }
+  .panel.active { display: flex; }
+  .panel[data-cat="wfm"]    { border-top-color: var(--wfm); }
+  .panel[data-cat="tj"]     { border-top-color: var(--tj); }
+  .panel[data-cat="indian"] { border-top-color: var(--indian); }
+  .panel[data-cat="other"]  { border-top-color: var(--other); }
+
+  .panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 10px;
+    gap: 12px;
+  }
+  .panel-head-left { display: flex; flex-direction: column; gap: 2px; }
+  .panel-head h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px;
+    margin: 0;
+    font-weight: 700;
+  }
+  .panel-head .sub {
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+  .panel-head .meta { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+  .panel-head .count { font-size: 12px; color: var(--ink-soft); }
+  .clear-checked {
+    background: none;
+    border: none;
+    font-size: 12px;
+    color: var(--ink-soft);
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+  }
+  .clear-checked:hover { color: var(--ink); }
+
+  ul.items {
+    list-style: none;
+    margin: 0;
+    padding: 2px 8px;
+    flex: 1;
+    overflow-y: auto;
+  }
+  ul.items li {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  ul.items li:last-child { border-bottom: none; }
+
+  .check {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    border: 2px solid var(--accent);
+    background: none;
+    flex-shrink: 0;
+    margin-top: 0px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: transform .12s ease, background .12s ease;
+  }
+  .check svg { width: 13px; height: 13px; opacity: 0; transition: opacity .12s ease; }
+  li.got .check { background: var(--accent); }
+  li.got .check svg { opacity: 1; }
+  .check:active { transform: scale(0.88); }
+
+  .panel[data-cat="wfm"]    .check { --accent: var(--wfm); }
+  .panel[data-cat="tj"]     .check { --accent: var(--tj); }
+  .panel[data-cat="indian"] .check { --accent: var(--indian); }
+  .panel[data-cat="other"]  .check { --accent: var(--other); }
+
+  .item-body { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+
+  .item-name {
+    font-size: 15px;
+    line-height: 1.35;
+    outline: none;
+    word-break: break-word;
+  }
+  li.got .item-name {
+    color: var(--ink-soft);
+    text-decoration: line-through;
+  }
+
+  .item-note {
+    font-size: 12px;
+    color: var(--ink-soft);
+    outline: none;
+    word-break: break-word;
+    min-height: 0;
+    line-height: 1.4;
+  }
+  .item-note:empty::before {
+    content: 'Add note...';
+    color: #C8CBBC;
+    pointer-events: none;
+  }
+  .item-note:focus::before { display: none; }
+
+  .delete {
+    background: none;
+    border: none;
+    color: var(--ink-soft);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 2px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .delete:hover { color: #C0584F; }
+
+  .empty-state {
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 14px;
+    padding: 48px 24px;
+  }
+  .empty-state .emoji { font-size: 32px; margin-bottom: 8px; }
+
+  form.add-item {
+    display: flex;
+    gap: 8px;
+    padding: 12px;
+    border-top: 1px solid var(--line);
+  }
+  form.add-item input {
+    flex: 1;
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-size: 15px;
+    font-family: inherit;
+    outline: none;
+    background: var(--paper);
+  }
+  .panel[data-cat="wfm"]    form.add-item input:focus { border-color: var(--wfm); }
+  .panel[data-cat="tj"]     form.add-item input:focus { border-color: var(--tj); }
+  .panel[data-cat="indian"] form.add-item input:focus { border-color: var(--indian); }
+  .panel[data-cat="other"]  form.add-item input:focus { border-color: var(--other); }
+
+  form.add-item button {
+    border: none;
+    border-radius: 10px;
+    width: 44px;
+    font-size: 22px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .panel[data-cat="wfm"]    form.add-item button { background: var(--wfm); }
+  .panel[data-cat="tj"]     form.add-item button { background: var(--tj); }
+  .panel[data-cat="indian"] form.add-item button { background: var(--indian); }
+  .panel[data-cat="other"]  form.add-item button { background: var(--other); }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <h1>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      Groceries
+    </h1>
+    <p>Tap a store tab · Tap item to edit · Tap box to check off</p>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-cat="wfm">
+      WFM
+      <span class="badge"></span>
+    </button>
+    <button class="tab" data-cat="tj">
+      TJ's
+      <span class="badge"></span>
+    </button>
+    <button class="tab" data-cat="indian">
+      Indian
+      <span class="badge"></span>
+    </button>
+    <button class="tab" data-cat="other">
+      Other
+      <span class="badge"></span>
+    </button>
+  </nav>
+
+  <main class="panels">
+
+    <section class="panel active" data-cat="wfm">
+      <div class="panel-head">
+        <div class="panel-head-left">
+          <h2>Whole Foods</h2>
+          <span class="sub">Tap item name or note to edit</span>
+        </div>
+        <div class="meta">
+          <span class="count"></span>
+          <button class="clear-checked">Clear checked</button>
+        </div>
+      </div>
+      <ul class="items"></ul>
+      <form class="add-item">
+        <input type="text" placeholder="Add item..." autocomplete="off" aria-label="Add Whole Foods item" />
+        <button type="submit" aria-label="Add">+</button>
+      </form>
+    </section>
+
+    <section class="panel" data-cat="tj">
+      <div class="panel-head">
+        <div class="panel-head-left">
+          <h2>Trader Joe's</h2>
+          <span class="sub">Tap item name or note to edit</span>
+        </div>
+        <div class="meta">
+          <span class="count"></span>
+          <button class="clear-checked">Clear checked</button>
+        </div>
+      </div>
+      <ul class="items"></ul>
+      <form class="add-item">
+        <input type="text" placeholder="Add item..." autocomplete="off" aria-label="Add Trader Joe's item" />
+        <button type="submit" aria-label="Add">+</button>
+      </form>
+    </section>
+
+    <section class="panel" data-cat="indian">
+      <div class="panel-head">
+        <div class="panel-head-left">
+          <h2>Indian Store</h2>
+          <span class="sub">Tap item name or note to edit</span>
+        </div>
+        <div class="meta">
+          <span class="count"></span>
+          <button class="clear-checked">Clear checked</button>
+        </div>
+      </div>
+      <ul class="items"></ul>
+      <form class="add-item">
+        <input type="text" placeholder="Add item..." autocomplete="off" aria-label="Add Indian store item" />
+        <button type="submit" aria-label="Add">+</button>
+      </form>
+    </section>
+
+    <section class="panel" data-cat="other">
+      <div class="panel-head">
+        <div class="panel-head-left">
+          <h2>Other</h2>
+          <span class="sub">Tap item name or note to edit</span>
+        </div>
+        <div class="meta">
+          <span class="count"></span>
+          <button class="clear-checked">Clear checked</button>
+        </div>
+      </div>
+      <ul class="items"></ul>
+      <form class="add-item">
+        <input type="text" placeholder="Add item..." autocomplete="off" aria-label="Add other item" />
+        <button type="submit" aria-label="Add">+</button>
+      </form>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const STORAGE_KEY = 'groceryListData_v1';
+  const CATS = ['wfm', 'tj', 'indian', 'other'];
+  let data = load();
+  let uidCounter = Date.now();
+
+  function load() {
+    const empty = {};
+    CATS.forEach(c => empty[c] = []);
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        CATS.forEach(c => { if (!parsed[c]) parsed[c] = []; });
+        return parsed;
+      }
+    } catch(e) {}
+    return empty;
+  }
+
+  function save() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+  }
+
+  function uid() { return 'g' + (uidCounter++); }
+
+  function escapeHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str || '';
+    return d.innerHTML;
+  }
+
+  function updateBadge(cat) {
+    const items = data[cat] || [];
+    const remaining = items.filter(i => !i.got).length;
+    const badge = document.querySelector('.tab[data-cat="' + cat + '"] .badge');
+    badge.textContent = items.length ? (remaining + ' left') : '';
+  }
+
+  function updateMeta(cat) {
+    const panel = document.querySelector('.panel[data-cat="' + cat + '"]');
+    const items = data[cat] || [];
+    const gotCount = items.filter(i => i.got).length;
+    const countEl = panel.querySelector('.count');
+    countEl.textContent = items.length ? (gotCount + ' of ' + items.length + ' checked') : '';
+    const clearBtn = panel.querySelector('.clear-checked');
+    clearBtn.style.visibility = gotCount ? 'visible' : 'hidden';
+    updateBadge(cat);
+  }
+
+  function render(cat) {
+    const panel = document.querySelector('.panel[data-cat="' + cat + '"]');
+    const ul = panel.querySelector('ul.items');
+    const items = data[cat] || [];
+    ul.innerHTML = '';
+
+    if (!items.length) {
+      const li = document.createElement('li');
+      li.style.border = 'none';
+      li.style.display = 'block';
+      li.innerHTML =
+        '<div class="empty-state">' +
+          '<div class="emoji">🛒</div>' +
+          '<div>Nothing on this list yet.<br>Add your first item below.</div>' +
+        '</div>';
+      ul.appendChild(li);
+    } else {
+      // unchecked first, then checked
+      const sorted = [
+        ...items.filter(i => !i.got),
+        ...items.filter(i => i.got)
+      ];
+      sorted.forEach(item => {
+        const li = document.createElement('li');
+        li.className = item.got ? 'got' : '';
+        li.dataset.id = item.id;
+        li.innerHTML =
+          '<button class="check" aria-label="Toggle">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' +
+          '</button>' +
+          '<div class="item-body">' +
+            '<div class="item-name" contenteditable="true" spellcheck="false">' + escapeHtml(item.name) + '</div>' +
+            '<div class="item-note" contenteditable="true" spellcheck="false">' + escapeHtml(item.note || '') + '</div>' +
+          '</div>' +
+          '<button class="delete" aria-label="Remove">&times;</button>';
+        ul.appendChild(li);
+      });
+    }
+    updateMeta(cat);
+  }
+
+  CATS.forEach(cat => {
+    const panel = document.querySelector('.panel[data-cat="' + cat + '"]');
+    const ul = panel.querySelector('ul.items');
+
+    ul.addEventListener('click', e => {
+      const li = e.target.closest('li');
+      if (!li || !li.dataset.id) return;
+      const id = li.dataset.id;
+      if (e.target.closest('.check')) {
+        const item = data[cat].find(i => i.id === id);
+        if (item) { item.got = !item.got; save(); render(cat); }
+      } else if (e.target.closest('.delete')) {
+        data[cat] = data[cat].filter(i => i.id !== id);
+        save(); render(cat);
+      }
+    });
+
+    // blur captures for name edits
+    ul.addEventListener('blur', e => {
+      const li = e.target.closest('li');
+      if (!li || !li.dataset.id) return;
+      const id = li.dataset.id;
+      const item = data[cat].find(i => i.id === id);
+      if (!item) return;
+
+      if (e.target.classList.contains('item-name')) {
+        const text = e.target.textContent.replace(/\s+/g, ' ').trim();
+        if (!text) {
+          data[cat] = data[cat].filter(i => i.id !== id);
+          save(); render(cat); return;
+        }
+        item.name = text;
+        save();
+      } else if (e.target.classList.contains('item-note')) {
+        const note = e.target.textContent.replace(/\s+/g, ' ').trim();
+        item.note = note;
+        save();
+      }
+    }, true);
+
+    ul.addEventListener('keydown', e => {
+      if ((e.target.classList.contains('item-name') || e.target.classList.contains('item-note')) && e.key === 'Enter') {
+        e.preventDefault();
+        e.target.blur();
+      }
+    });
+
+    panel.querySelector('.clear-checked').addEventListener('click', () => {
+      data[cat] = data[cat].filter(i => !i.got);
+      save(); render(cat);
+    });
+
+    panel.querySelector('.add-item').addEventListener('submit', e => {
+      e.preventDefault();
+      const input = panel.querySelector('.add-item input');
+      const text = input.value.trim();
+      if (!text) return;
+      data[cat].push({ id: uid(), name: text, note: '', got: false });
+      input.value = '';
+      save(); render(cat);
+    });
+
+    render(cat);
+  });
+
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const cat = tab.dataset.cat;
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === tab));
+      document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.dataset.cat === cat));
+    });
+  });
+</script>
+</body>
+</html>
